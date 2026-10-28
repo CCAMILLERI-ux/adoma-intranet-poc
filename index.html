@@ -3,278 +3,268 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Adoma - Intranet de Résidence (POC)</title>
+  <title>Intranet de Résidence Adoma (POC)</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React & Babel -->
+  <!-- React & Babel CDNs -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
 </head>
-<body class="bg-slate-100 font-sans antialiased text-slate-800">
+<body class="bg-[#F1F5F9] text-slate-800 antialiased">
   <div id="root"></div>
 
   <script type="text/babel">
     const { useState } = React;
-    
-    // Logo SVG officiel Adoma / CDC Habitat
+
+    // Logo Officiel Adoma CDC Habitat
     const AdomaLogo = () => (
-      <svg className="h-8 w-auto" viewBox="0 0 280 45" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="38" height="38" fill="#E30613"/>
-        <text x="7" y="27" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="22">cdc</text>
-        <text x="48" y="27" fill="#1E293B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="22">habitat</text>
-        <text x="135" y="40" fill="#64748B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="14">Adoma</text>
-        <line x1="185" y1="5" x2="185" y2="38" stroke="#CBD5E1" strokeWidth="1.5"/>
-        <rect x="195" y="5" width="75" height="33" fill="#E30613"/>
-        <text x="200" y="22" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="9">Caisse</text>
-        <text x="200" y="32" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="9">des Dépôts</text>
-        <text x="200" y="40" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="6">GROUPE</text>
-      </svg>
+      <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
+        <svg className="h-8 w-auto" viewBox="0 0 280 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="38" height="38" rx="4" fill="#E30613"/>
+          <text x="7" y="27" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="20">cdc</text>
+          <text x="48" y="27" fill="#1E293B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="20">habitat</text>
+          <text x="135" y="38" fill="#64748B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="13">Adoma</text>
+          <line x1="185" y1="5" x2="185" y2="38" stroke="#CBD5E1" strokeWidth="1.5"/>
+          <rect x="195" y="5" width="75" height="33" rx="2" fill="#E30613"/>
+          <text x="200" y="20" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="8">Caisse</text>
+          <text x="200" y="29" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="8">des Dépôts</text>
+          <text x="200" y="36" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="5">GROUPE</text>
+        </svg>
+      </div>
     );
 
     function App() {
       const [viewMode, setViewMode] = useState('resident'); // 'resident' | 'admin' | 'kiosk'
       const [activeTab, setActiveTab] = useState('actu');
+      const [lang, setLang] = useState('FR');
+      
       const [posts, setPosts] = useState([
-        { id: 1, type: 'urgence', title: 'Coupure d\'eau temporaire', date: 'Aujourd\'hui, 09:00 - 12:00', desc: 'Intervention sur la colonne d\'eau du bâtiment B. Merci de veiller à bien fermer vos robinets.', author: 'Responsable de résidence' },
-        { id: 2, type: 'event', title: 'Café partagé au rez-de-chaussée', date: 'Mardi prochain à 14h30', desc: 'Venez passer un moment convivial avec l\'équipe et les autres résidents autour d\'un café.', author: 'Agent d\'animation' },
-        { id: 3, type: 'info', title: 'Permanence France Travail', date: 'Jeudi de 10h à 12h', desc: 'Un conseiller est présent au bureau d\'accueil pour vous accompagner dans vos démarches d\'emploi.', author: 'Équipe sociale' }
+        { id: 1, type: 'urgence', title: 'Coupure d\'eau temporaire', date: 'Aujourd\'hui, 09:00 - 12:00', desc: 'Intervention urgente sur la colonne d\'eau du bâtiment B. Merci de fermer vos robinets.', author: 'Responsable de résidence' },
+        { id: 2, type: 'event', title: 'Café partagé & Accueil des nouveaux', date: 'Mardi 3 novembre à 14h30', desc: 'Venez passer un moment convivial avec l\'équipe d\'animation autour d\'un café et de viennoiseries.', author: 'Équipe d\'animation' },
+        { id: 3, type: 'info', title: 'Permanence France Travail', date: 'Chaque jeudi de 10h à 12h', desc: 'Un conseiller spécialisé est présent dans la salle de réunion pour vous accompagner.', author: 'Accompagnement social' }
       ]);
-
-      const [newTitle, setNewTitle] = useState('');
-      const [newDesc, setNewDesc] = useState('');
-      const [newType, setNewType] = useState('info');
-
-      const handlePublish = (e) => {
-        e.preventDefault();
-        if(!newTitle || !newDesc) return;
-        const item = {
-          id: Date.now(),
-          type: newType,
-          title: newTitle,
-          date: 'À l\'instant',
-          desc: newDesc,
-          author: 'Responsable de résidence'
-        };
-        setPosts([item, ...posts]);
-        setNewTitle('');
-        setNewDesc('');
-        alert('Publication envoyée sur l\'intranet de la résidence !');
-        setActiveTab('actu');
-      };
 
       const speakText = (text) => {
         if ('speechSynthesis' in window) {
           window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(text);
-          utterance.lang = 'fr-FR';
+          utterance.lang = lang === 'EN' ? 'en-US' : 'fr-FR';
           window.speechSynthesis.speak(utterance);
-        } else {
-          alert("La lecture vocale n'est pas supportée par votre navigateur.");
         }
       };
 
       return (
-        <div className="min-h-screen bg-slate-100 flex flex-col">
-          {/* Header Barre de contrôle POC */}
-          <header className="bg-slate-900 text-white px-4 py-3 shadow-md flex flex-wrap justify-between items-center gap-4">
+        <div className="min-h-screen flex flex-col bg-[#F1F5F9]">
+          
+          {/* BARRE SUPERIEURE DE NAVIGATION DES VUES (Design Exact) */}
+          <header className="bg-[#101828] text-white px-4 py-3 shadow-lg flex flex-wrap justify-between items-center gap-4">
             <div className="flex items-center space-x-3">
-              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">POC UX</span>
-              <span className="text-sm font-medium">Intranet Résidence Adoma — Démo Multi-Vues</span>
+              <AdomaLogo />
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h1 className="text-base font-extrabold text-white">Intranet Résidence</h1>
+                  <span className="bg-[#A81920] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">POC Demo</span>
+                </div>
+                <p className="text-xs text-slate-400">Vaulx-en-Velin "Les Oliviers"</p>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <button onClick={() => setViewMode('resident')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'resident' ? 'bg-[#A81920] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
-                📱 Vue Résident (Mobile)
+
+            {/* Selecteur de Vue */}
+            <div className="flex items-center bg-slate-900/80 p-1 rounded-xl border border-slate-700/60">
+              <button 
+                onClick={() => setViewMode('resident')} 
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'resident' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}
+              >
+                <span>📱</span>
+                <span>Vue Résident</span>
               </button>
-              <button onClick={() => setViewMode('admin')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'admin' ? 'bg-[#A81920] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
-                💻 Console Admin (Responsable)
+              <button 
+                onClick={() => setViewMode('admin')} 
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'admin' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}
+              >
+                <span>⚙️</span>
+                <span>Console Responsable</span>
               </button>
-              <button onClick={() => setViewMode('kiosk')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'kiosk' ? 'bg-[#A81920] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
-                📺 Affichage Hall (TV)
+              <button 
+                onClick={() => setViewMode('kiosk')} 
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'kiosk' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}
+              >
+                <span>📺</span>
+                <span>Affichage Hall (TV)</span>
               </button>
+            </div>
+
+            {/* Langues FALC */}
+            <div className="flex items-center space-x-1 bg-slate-800/80 px-2 py-1 rounded-xl border border-slate-700">
+              <span className="text-xs mr-1">🌐</span>
+              {['FR', 'EN', 'العربية', 'PY'].map((l) => (
+                <button 
+                  key={l} 
+                  onClick={() => setLang(l)}
+                  className={`px-2 py-0.5 rounded text-xs font-bold transition ${lang === l ? 'bg-white text-slate-900' : 'text-slate-300 hover:text-white'}`}
+                >
+                  {l}
+                </button>
+              ))}
             </div>
           </header>
 
-          {/* Corps de l'application selon la vue */}
-          <div className="flex-1 flex justify-center items-start p-2 sm:p-6">
-            
-            {/* VUE 1 : RÉSIDENT (PWA Mobile) */}
-            {viewMode === 'resident' && (
-              <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-8 border-slate-800 flex flex-col min-h-[750px]">
-                {/* En-tête Résidence */}
-                <div className="bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center">
-                  <AdomaLogo />
-                  <div className="text-right">
-                    <span className="text-xs font-bold text-slate-500 block">Résidence</span>
-                    <span className="text-sm font-extrabold text-slate-800">Les Oliviers</span>
-                  </div>
+          {/* VUE DESKTOP RÉSIDENT */}
+          {viewMode === 'resident' && (
+            <main className="max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6 flex-1">
+              
+              {/* Carte de Bienvenue & Bouton Urgence (Exact Figma) */}
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="space-y-1">
+                  <span className="inline-block bg-red-100 text-[#A81920] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    🏠 RÉSIDENCE LES OLIVIERS
+                  </span>
+                  <h2 className="text-2xl font-extrabold text-slate-900">Bienvenue dans votre résidence</h2>
+                  <p className="text-sm text-slate-500">Retrouvez ici les informations utiles, vos événements et vos contacts.</p>
                 </div>
-
-                {/* Contenu de l'onglet */}
-                <div className="flex-1 p-4 overflow-y-auto space-y-4">
-                  <div className="bg-red-50 border-l-4 border-[#A81920] p-3 rounded-r-xl">
-                    <div className="flex justify-between items-start">
-                      <p className="text-xs font-bold text-[#A81920]">Bienvenue sur votre espace</p>
-                      <button onClick={() => speakText("Bienvenue sur votre espace de résidence Les Oliviers. Retrouvez ici vos actualités et services.")} className="text-[#A81920] hover:text-red-900 text-xs flex items-center gap-1 font-bold">
-                        🔊 Écouter
-                      </button>
-                    </div>
-                    <p className="text-xs text-slate-600 mt-1">Restez informés de la vie de la résidence et contactez l'équipe en un clic.</p>
-                  </div>
-
-                  {activeTab === 'actu' && (
-                    <div className="space-y-3">
-                      <h2 className="font-bold text-slate-800 text-sm flex items-center gap-2">📢 Actualités & Alertes</h2>
-                      {posts.map(post => (
-                        <div key={post.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow transition">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${post.type === 'urgence' ? 'bg-red-100 text-red-700' : post.type === 'event' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>
-                              {post.type.toUpperCase()}
-                            </span>
-                            <span className="text-[11px] text-slate-400">{post.date}</span>
-                          </div>
-                          <h3 className="font-bold text-slate-900 text-sm mt-1">{post.title}</h3>
-                          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{post.desc}</p>
-                          <div className="mt-3 flex justify-between items-center pt-2 border-t border-slate-200">
-                            <span className="text-[10px] text-slate-500">Par {post.author}</span>
-                            <button onClick={() => speakText(`${post.title}. ${post.desc}`)} className="text-slate-600 hover:text-red-600 text-xs flex items-center gap-1 font-semibold bg-white px-2 py-1 rounded border border-slate-200">
-                              🔊 Écouter
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {activeTab === 'services' && (
-                    <div className="space-y-3">
-                      <h2 className="font-bold text-slate-800 text-sm">🛠️ Vie Pratique & Logement</h2>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
-                          <span className="text-2xl block mb-1">🚿</span>
-                          <span className="text-xs font-bold text-slate-700">Signaler une panne</span>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
-                          <span className="text-2xl block mb-1">🧺</span>
-                          <span className="text-xs font-bold text-slate-700">Laverie</span>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
-                          <span className="text-2xl block mb-1">📄</span>
-                          <span className="text-xs font-bold text-slate-700">Guide d'accueil</span>
-                        </div>
-                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
-                          <span className="text-2xl block mb-1">🤝</span>
-                          <span className="text-xs font-bold text-slate-700">Permanences</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeTab === 'equipe' && (
-                    <div className="space-y-3">
-                      <h2 className="font-bold text-slate-800 text-sm">👥 Votre Équipe de Proximité</h2>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-red-100 text-[#A81920] rounded-full flex items-center justify-center font-bold">SA</div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-800">Salima Afric</p>
-                          <p className="text-[11px] text-slate-500">Responsable de résidence</p>
-                        </div>
-                      </div>
-                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold">CM</div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-800">Christian M.</p>
-                          <p className="text-[11px] text-slate-500">Ouvrier de maintenance</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Navigation Basse Mobile */}
-                <nav className="bg-white border-t border-slate-200 px-4 py-2 flex justify-around">
-                  <button onClick={() => setActiveTab('actu')} className={`flex flex-col items-center text-xs ${activeTab === 'actu' ? 'text-[#A81920] font-bold' : 'text-slate-400'}`}>
-                    <span>📢</span> Actualités
-                  </button>
-                  <button onClick={() => setActiveTab('services')} className={`flex flex-col items-center text-xs ${activeTab === 'services' ? 'text-[#A81920] font-bold' : 'text-slate-400'}`}>
-                    <span>🛠️</span> Services
-                  </button>
-                  <button onClick={() => setActiveTab('equipe')} className={`flex flex-col items-center text-xs ${activeTab === 'equipe' ? 'text-[#A81920] font-bold' : 'text-slate-400'}`}>
-                    <span>👥</span> Équipe
-                  </button>
-                </nav>
+                
+                <button 
+                  onClick={() => alert('Formulaire de signalement de panne rapide ouvert !')}
+                  className="bg-[#A81920] hover:bg-red-800 text-white font-bold px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 text-sm whitespace-nowrap"
+                >
+                  <span>🔧</span>
+                  <span>Signaler une panne</span>
+                </button>
               </div>
-            )}
 
-            {/* VUE 2 : CONSOLE ADMIN (Responsable de résidence) */}
-            {viewMode === 'admin' && (
-              <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-200 mb-6">
-                  <div>
-                    <h1 className="text-xl font-bold text-slate-900">Console Responsable de Résidence</h1>
-                    <p className="text-xs text-slate-500">Publiez et informez les résidents de votre site en quelques clics.</p>
+              {/* Grille des 4 Grandes Catégories avec Icônes (Exact Figma) */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <button 
+                  onClick={() => setActiveTab('actu')}
+                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'actu' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#A81920] flex items-center justify-center text-xl font-bold">
+                    🔔
                   </div>
-                  <AdomaLogo />
-                </div>
+                  <span className="font-bold text-slate-800 text-sm">Actualités & Alertes</span>
+                </button>
 
-                <form onSubmit={handlePublish} className="space-y-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
-                  <h2 className="text-sm font-bold text-slate-800 mb-2">Publier une annonce locale</h2>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Type d'annonce</label>
-                    <select value={newType} onChange={(e) => setNewType(e.target.value)} className="w-full text-sm border border-slate-300 rounded-lg p-2 bg-white">
-                      <option value="info">Information générale</option>
-                      <option value="event">Événement / Animation</option>
-                      <option value="urgence">Urgence / Travaux</option>
-                    </select>
+                <button 
+                  onClick={() => setActiveTab('vie')}
+                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'vie' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                    📅
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce</label>
-                    <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Ex: Coupure d'électricité programmée..." className="w-full text-sm border border-slate-300 rounded-lg p-2 bg-white" required />
+                  <span className="font-bold text-slate-800 text-sm">Vie & Animations</span>
+                </button>
+
+                <button 
+                  onClick={() => setActiveTab('guides')}
+                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'guides' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
+                    ℹ️
                   </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Description détaillée</label>
-                    <textarea value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="Détails à destination des résidents..." className="w-full text-sm border border-slate-300 rounded-lg p-2 bg-white h-24" required></textarea>
+                  <span className="font-bold text-slate-800 text-sm">Guides Pratiques</span>
+                </button>
+
+                <button 
+                  onClick={() => setActiveTab('equipe')}
+                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'equipe' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+                >
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
+                    👥
                   </div>
-                  <button type="submit" className="w-full bg-[#A81920] hover:bg-red-800 text-white font-bold py-2.5 rounded-lg text-sm transition">
-                    Diffuser sur l'intranet de la résidence
-                  </button>
-                </form>
+                  <span className="font-bold text-slate-800 text-sm">Mon Équipe</span>
+                </button>
               </div>
-            )}
 
-            {/* VUE 3 : AFFICHAGE DYNAMIQUE (Hall TV) */}
-            {viewMode === 'kiosk' && (
-              <div className="w-full max-w-4xl bg-slate-900 text-white rounded-3xl shadow-2xl p-8 border-4 border-red-600 flex flex-col min-h-[600px]">
-                <div className="flex justify-between items-center pb-6 border-b border-slate-800">
-                  <div className="flex items-center space-x-4">
-                    <span className="bg-red-600 text-white font-bold px-3 py-1 rounded-lg text-sm">HALL D'ACCUEIL</span>
-                    <h1 className="text-2xl font-extrabold tracking-wide">Résidence Les Oliviers — Informations</h1>
+              {/* Flux des messages principaux */}
+              <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-100">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-6 bg-[#A81920] rounded-full"></span>
+                    <h3 className="text-lg font-extrabold text-slate-900">En ce moment (Actualités)</h3>
                   </div>
-                  <div className="bg-white px-3 py-1.5 rounded-xl">
-                    <AdomaLogo />
-                  </div>
+                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{posts.length} message(s)</span>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto py-6">
-                  {posts.slice(0, 2).map(post => (
-                    <div key={post.id} className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg">
-                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-600 text-white uppercase">{post.type}</span>
-                      <h2 className="text-xl font-bold mt-3 text-white">{post.title}</h2>
-                      <p className="text-sm text-slate-300 mt-2 leading-relaxed">{post.desc}</p>
-                      <p className="text-xs text-slate-400 mt-4">Publié par {post.author}</p>
+                <div className="space-y-4">
+                  {posts.map((post) => (
+                    <div key={post.id} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-slate-100/80 transition space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${post.type === 'urgence' ? 'bg-red-100 text-[#A81920]' : post.type === 'event' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
+                          {post.type}
+                        </span>
+                        <span className="text-xs text-slate-400 font-medium">{post.date}</span>
+                      </div>
+                      
+                      <h4 className="text-base font-bold text-slate-900">{post.title}</h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">{post.desc}</p>
+                      
+                      <div className="pt-3 flex justify-between items-center border-t border-slate-200/60 text-xs">
+                        <span className="text-slate-500 font-medium">Émis par : <strong className="text-slate-700">{post.author}</strong></span>
+                        <button 
+                          onClick={() => speakText(`${post.title}. ${post.desc}`)}
+                          className="flex items-center space-x-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 font-bold text-slate-700 hover:text-[#A81920] shadow-sm transition"
+                        >
+                          <span>🔊</span>
+                          <span>Écouter (FALC)</span>
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
-
-                <div className="text-center pt-4 border-t border-slate-800 text-xs text-slate-400">
-                  Scannez le QR Code dans le hall pour accéder à votre espace résident sur smartphone.
-                </div>
               </div>
-            )}
 
-          </div>
+            </main>
+          )}
+
+          {/* VUE ADMIN & KIOSK */}
+          {viewMode === 'admin' && (
+            <main className="max-w-4xl w-full mx-auto p-6 flex-1">
+              <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
+                <h2 className="text-xl font-bold text-slate-900">Console d'administration - Publication d'Annonces</h2>
+                <p className="text-sm text-slate-500">Remplissez ce formulaire pour diffuser instantanément une alerte sur l'intranet résident et sur les écrans du hall.</p>
+                <form onSubmit={(e) => { e.preventDefault(); alert('Message publié !'); setViewMode('resident'); }} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce</label>
+                    <input type="text" className="w-full border border-slate-300 rounded-xl p-3 text-sm" placeholder="Ex: Maintenance du chauffage" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Description simplifiée (FALC)</label>
+                    <textarea className="w-full border border-slate-300 rounded-xl p-3 text-sm h-28" placeholder="Expliquez clairement la situation..." required></textarea>
+                  </div>
+                  <button type="submit" className="bg-[#A81920] text-white font-bold px-6 py-3 rounded-xl text-sm hover:bg-red-800 transition">Publier l'annonce</button>
+                </form>
+              </div>
+            </main>
+          )}
+
+          {viewMode === 'kiosk' && (
+            <main className="flex-1 bg-slate-950 p-8 text-white flex flex-col justify-between">
+              <div className="flex justify-between items-center pb-6 border-b border-slate-800">
+                <h2 className="text-3xl font-extrabold text-red-500">RÉSIDENCE LES OLIVIERS</h2>
+                <span className="text-xl font-bold text-slate-400">ÉCRAN DU HALL</span>
+              </div>
+              <div className="grid grid-cols-2 gap-8 my-auto">
+                {posts.slice(0, 2).map((p) => (
+                  <div key={p.id} className="bg-slate-900 border border-slate-800 p-8 rounded-3xl space-y-4">
+                    <span className="bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase">{p.type}</span>
+                    <h3 className="text-2xl font-bold text-white">{p.title}</h3>
+                    <p className="text-slate-300 text-lg leading-relaxed">{p.desc}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="text-center text-slate-500 text-sm border-t border-slate-800 pt-4">
+                Adoma — Groupe Caisse des Dépôts
+              </div>
+            </main>
+          )}
+
         </div>
       );
     }
