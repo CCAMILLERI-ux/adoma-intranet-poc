@@ -19,23 +19,22 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // Logo Vectoriel Haute Fidélité Adoma / CDC Habitat
     const AdomaLogo = ({ className = "h-9" }) => (
       <svg viewBox="0 0 420 120" className={`${className} w-auto`} aria-label="CDC Habitat Adoma - Groupe Caisse des Dépôts" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="10" width="100" height="100" fill="#E2001A" rx="8" />
-        <text x="50" y="78" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="900" fontSize="46" textAnchor="middle" letterSpacing="-1">cdc</text>
-        <text x="115" y="85" fill="#1E293B" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="800" fontSize="52" letterSpacing="-1.5">habitat</text>
-        <text x="117" y="112" fill="#64748B" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700" fontSize="24" letterSpacing="0.5">Adoma</text>
+        <text x="50" y="78" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontWeight="900" fontSize="46" textAnchor="middle" letterSpacing="-1">cdc</text>
+        <text x="115" y="85" fill="#1E293B" fontFamily="system-ui, sans-serif" fontWeight="800" fontSize="52" letterSpacing="-1.5">habitat</text>
+        <text x="117" y="112" fill="#64748B" fontFamily="system-ui, sans-serif" fontWeight="700" fontSize="24" letterSpacing="0.5">Adoma</text>
         <line x1="285" y1="20" x2="285" y2="100" stroke="#CBD5E1" strokeWidth="3" strokeLinecap="round" />
         <rect x="305" y="20" width="105" height="80" fill="#E2001A" rx="4" />
-        <text x="357" y="52" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700" fontSize="20" textAnchor="middle">Caisse</text>
-        <text x="357" y="73" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="700" fontSize="20" textAnchor="middle">des Dépôts</text>
-        <text x="357" y="91" fill="#FFFFFF" fontFamily="system-ui, -apple-system, sans-serif" fontWeight="600" fontSize="11" textAnchor="middle" letterSpacing="1">GROUPE</text>
+        <text x="357" y="52" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontWeight="700" fontSize="20" textAnchor="middle">Caisse</text>
+        <text x="357" y="73" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontWeight="700" fontSize="20" textAnchor="middle">des Dépôts</text>
+        <text x="357" y="91" fill="#FFFFFF" fontFamily="system-ui, sans-serif" fontWeight="600" fontSize="11" textAnchor="middle" letterSpacing="1">GROUPE</text>
       </svg>
     );
 
     function App() {
-      const [viewMode, setViewMode] = useState('resident'); // 'resident' | 'admin' | 'kiosk'
+      const [viewMode, setViewMode] = useState('resident');
       const [activeTab, setActiveTab] = useState('actu');
       const [lang, setLang] = useState('FR');
       const [showModal, setShowModal] = useState(false);
@@ -75,8 +74,6 @@
 
       return (
         <div className="min-h-screen flex flex-col bg-[#F8FAFC]">
-          
-          {/* BARRE DE NAVIGATION PRINCIPALE (POC UI) */}
           <header className="bg-[#0F172A] text-white px-4 py-3 shadow-md flex flex-wrap justify-between items-center gap-4">
             <div className="flex items-center space-x-3">
               <div className="bg-white px-2.5 py-1 rounded-xl shadow-sm">
@@ -91,7 +88,6 @@
               </div>
             </div>
 
-            {/* Sélecteur de Vues */}
             <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-700">
               <button onClick={() => setViewMode('resident')} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${viewMode === 'resident' ? 'bg-[#E2001A] text-white shadow' : 'text-slate-300 hover:text-white'}`}>
                 📱 Vue Résident
@@ -104,7 +100,6 @@
               </button>
             </div>
 
-            {/* Sélecteur de Langue FALC */}
             <div className="flex items-center space-x-1 bg-slate-800 px-2 py-1 rounded-xl border border-slate-700">
               <span className="text-xs">🌐</span>
               {['FR', 'EN', 'العربية', 'PY'].map((l) => (
@@ -115,11 +110,8 @@
             </div>
           </header>
 
-          {/* VUE RÉSIDENT COMPLÈTE */}
           {viewMode === 'resident' && (
             <main className="max-w-5xl w-full mx-auto p-4 sm:p-6 space-y-6 flex-1">
-              
-              {/* En-tête de bienvenue & CTA Panne */}
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="space-y-1">
                   <span className="inline-block bg-red-50 text-[#E2001A] text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -134,7 +126,6 @@
                 </button>
               </div>
 
-              {/* Grille des 4 onglets principaux */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <button onClick={() => setActiveTab('actu')} className={`p-5 rounded-2xl border text-center flex flex-col items-center justify-center space-y-2 transition ${activeTab === 'actu' ? 'bg-white border-[#E2001A] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
                   <span className="text-2xl">🔔</span>
@@ -154,7 +145,6 @@
                 </button>
               </div>
 
-              {/* Flux de contenu dynamique */}
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100">
                   <div className="flex items-center space-x-2">
@@ -214,11 +204,9 @@
                   </div>
                 )}
               </div>
-
             </main>
           )}
 
-          {/* MODAL SIGNALEMENT */}
           {showModal && (
             <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
               <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
@@ -240,7 +228,6 @@
             </div>
           )}
 
-          {/* VUE ADMIN */}
           {viewMode === 'admin' && (
             <main className="max-w-3xl w-full mx-auto p-6 flex-1">
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 space-y-4">
@@ -260,7 +247,6 @@
             </main>
           )}
 
-          {/* VUE KIOSK TV */}
           {viewMode === 'kiosk' && (
             <main className="flex-1 bg-slate-950 p-8 text-white flex flex-col justify-between">
               <div className="flex justify-between items-center pb-4 border-b border-slate-800">
@@ -281,7 +267,6 @@
               </div>
             </main>
           )}
-
         </div>
       );
     }
