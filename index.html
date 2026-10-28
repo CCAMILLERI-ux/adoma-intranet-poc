@@ -10,8 +10,6 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     body { font-family: 'Inter', sans-serif; }
@@ -23,19 +21,18 @@
   <script type="text/babel">
     const { useState } = React;
 
-    // Logo Officiel Adoma CDC Habitat
     const AdomaLogo = () => (
       <div className="flex items-center space-x-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-sm">
-        <svg className="h-8 w-auto" viewBox="0 0 280 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg className="h-7 w-auto" viewBox="0 0 280 45" fill="none" xmlns="http://www.w3.org/2000/svg">
           <rect width="38" height="38" rx="4" fill="#E30613"/>
-          <text x="7" y="27" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="20">cdc</text>
-          <text x="48" y="27" fill="#1E293B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="20">habitat</text>
-          <text x="135" y="38" fill="#64748B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="13">Adoma</text>
+          <text x="7" y="27" fill="white" fontFamily="Arial" fontWeight="bold" fontSize="20">cdc</text>
+          <text x="48" y="27" fill="#1E293B" fontFamily="Arial" fontWeight="bold" fontSize="20">habitat</text>
+          <text x="135" y="38" fill="#64748B" fontFamily="Arial" fontWeight="bold" fontSize="13">Adoma</text>
           <line x1="185" y1="5" x2="185" y2="38" stroke="#CBD5E1" strokeWidth="1.5"/>
           <rect x="195" y="5" width="75" height="33" rx="2" fill="#E30613"/>
-          <text x="200" y="20" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="8">Caisse</text>
-          <text x="200" y="29" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="8">des Dépôts</text>
-          <text x="200" y="36" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="5">GROUPE</text>
+          <text x="200" y="20" fill="white" fontFamily="Arial" fontWeight="bold" fontSize="8">Caisse</text>
+          <text x="200" y="29" fill="white" fontFamily="Arial" fontWeight="bold" fontSize="8">des Dépôts</text>
+          <text x="200" y="36" fill="white" fontFamily="Arial" fontWeight="bold" fontSize="5">GROUPE</text>
         </svg>
       </div>
     );
@@ -44,11 +41,13 @@
       const [viewMode, setViewMode] = useState('resident'); // 'resident' | 'admin' | 'kiosk'
       const [activeTab, setActiveTab] = useState('actu');
       const [lang, setLang] = useState('FR');
-      
+      const [showModal, setShowModal] = useState(false);
+      const [incidentText, setIncidentText] = useState('');
+
       const [posts, setPosts] = useState([
-        { id: 1, type: 'urgence', title: 'Coupure d\'eau temporaire', date: 'Aujourd\'hui, 09:00 - 12:00', desc: 'Intervention urgente sur la colonne d\'eau du bâtiment B. Merci de fermer vos robinets.', author: 'Responsable de résidence' },
-        { id: 2, type: 'event', title: 'Café partagé & Accueil des nouveaux', date: 'Mardi 3 novembre à 14h30', desc: 'Venez passer un moment convivial avec l\'équipe d\'animation autour d\'un café et de viennoiseries.', author: 'Équipe d\'animation' },
-        { id: 3, type: 'info', title: 'Permanence France Travail', date: 'Chaque jeudi de 10h à 12h', desc: 'Un conseiller spécialisé est présent dans la salle de réunion pour vous accompagner.', author: 'Accompagnement social' }
+        { id: 1, type: 'urgence', title: 'Coupure d\'eau temporaire', date: 'Aujourd\'hui, 09:00 - 12:00', desc: 'Intervention urgente sur la colonne d\'eau du bâtiment B. Merci de veiller à bien fermer vos robinets.', author: 'Responsable de résidence' },
+        { id: 2, type: 'event', title: 'Café partagé & Accueil des nouveaux', date: 'Mardi 3 novembre à 14h30', desc: 'Venez passer un moment convivial avec l\'équipe d\'animation au rez-de-chaussée.', author: 'Équipe d\'animation' },
+        { id: 3, type: 'info', title: 'Permanence France Travail', date: 'Chaque jeudi de 10h à 12h', desc: 'Un conseiller spécialisé est présent pour vous accompagner dans vos démarches professionnelles.', author: 'Accompagnement social' }
       ]);
 
       const speakText = (text) => {
@@ -60,10 +59,27 @@
         }
       };
 
+      const handleIncidentSubmit = (e) => {
+        e.preventDefault();
+        if(!incidentText) return;
+        const newItem = {
+          id: Date.now(),
+          type: 'urgence',
+          title: 'Signalement résident : ' + incidentText.slice(0, 30) + '...',
+          date: 'À l\'instant',
+          desc: incidentText,
+          author: 'Résident (Anonymisé)'
+        };
+        setPosts([newItem, ...posts]);
+        setIncidentText('');
+        setShowModal(false);
+        alert('Votre signalement a bien été transmis au responsable de résidence.');
+      };
+
       return (
         <div className="min-h-screen flex flex-col bg-[#F1F5F9]">
           
-          {/* BARRE SUPERIEURE DE NAVIGATION DES VUES (Design Exact) */}
+          {/* BARRE SUPERIEURE DE NAVIGATION DES VUES */}
           <header className="bg-[#101828] text-white px-4 py-3 shadow-lg flex flex-wrap justify-between items-center gap-4">
             <div className="flex items-center space-x-3">
               <AdomaLogo />
@@ -78,26 +94,14 @@
 
             {/* Selecteur de Vue */}
             <div className="flex items-center bg-slate-900/80 p-1 rounded-xl border border-slate-700/60">
-              <button 
-                onClick={() => setViewMode('resident')} 
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'resident' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}
-              >
-                <span>📱</span>
-                <span>Vue Résident</span>
+              <button onClick={() => setViewMode('resident')} className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'resident' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}>
+                <span>📱</span><span>Vue Résident</span>
               </button>
-              <button 
-                onClick={() => setViewMode('admin')} 
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'admin' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}
-              >
-                <span>⚙️</span>
-                <span>Console Responsable</span>
+              <button onClick={() => setViewMode('admin')} className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'admin' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}>
+                <span>⚙️</span><span>Console Responsable</span>
               </button>
-              <button 
-                onClick={() => setViewMode('kiosk')} 
-                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'kiosk' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}
-              >
-                <span>📺</span>
-                <span>Affichage Hall (TV)</span>
+              <button onClick={() => setViewMode('kiosk')} className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${viewMode === 'kiosk' ? 'bg-[#A81920] text-white shadow' : 'text-slate-300 hover:text-white'}`}>
+                <span>📺</span><span>Affichage Hall (TV)</span>
               </button>
             </div>
 
@@ -105,22 +109,18 @@
             <div className="flex items-center space-x-1 bg-slate-800/80 px-2 py-1 rounded-xl border border-slate-700">
               <span className="text-xs mr-1">🌐</span>
               {['FR', 'EN', 'العربية', 'PY'].map((l) => (
-                <button 
-                  key={l} 
-                  onClick={() => setLang(l)}
-                  className={`px-2 py-0.5 rounded text-xs font-bold transition ${lang === l ? 'bg-white text-slate-900' : 'text-slate-300 hover:text-white'}`}
-                >
+                <button key={l} onClick={() => setLang(l)} className={`px-2 py-0.5 rounded text-xs font-bold transition ${lang === l ? 'bg-white text-slate-900' : 'text-slate-300 hover:text-white'}`}>
                   {l}
                 </button>
               ))}
             </div>
           </header>
 
-          {/* VUE DESKTOP RÉSIDENT */}
+          {/* VUE RÉSIDENT */}
           {viewMode === 'resident' && (
             <main className="max-w-6xl w-full mx-auto p-4 sm:p-6 space-y-6 flex-1">
               
-              {/* Carte de Bienvenue & Bouton Urgence (Exact Figma) */}
+              {/* Carte de Bienvenue & Bouton Panne */}
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div className="space-y-1">
                   <span className="inline-block bg-red-100 text-[#A81920] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -130,106 +130,152 @@
                   <p className="text-sm text-slate-500">Retrouvez ici les informations utiles, vos événements et vos contacts.</p>
                 </div>
                 
-                <button 
-                  onClick={() => alert('Formulaire de signalement de panne rapide ouvert !')}
-                  className="bg-[#A81920] hover:bg-red-800 text-white font-bold px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 text-sm whitespace-nowrap"
-                >
+                <button onClick={() => setShowModal(true)} className="bg-[#A81920] hover:bg-red-800 text-white font-bold px-5 py-3 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center space-x-2 text-sm whitespace-nowrap">
                   <span>🔧</span>
                   <span>Signaler une panne</span>
                 </button>
               </div>
 
-              {/* Grille des 4 Grandes Catégories avec Icônes (Exact Figma) */}
+              {/* Grille des 4 Catégories */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <button 
-                  onClick={() => setActiveTab('actu')}
-                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'actu' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#A81920] flex items-center justify-center text-xl font-bold">
-                    🔔
-                  </div>
+                <button onClick={() => setActiveTab('actu')} className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'actu' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                  <div className="w-12 h-12 rounded-2xl bg-red-50 text-[#A81920] flex items-center justify-center text-xl font-bold">🔔</div>
                   <span className="font-bold text-slate-800 text-sm">Actualités & Alertes</span>
                 </button>
 
-                <button 
-                  onClick={() => setActiveTab('vie')}
-                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'vie' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">
-                    📅
-                  </div>
+                <button onClick={() => setActiveTab('vie')} className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'vie' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl font-bold">📅</div>
                   <span className="font-bold text-slate-800 text-sm">Vie & Animations</span>
                 </button>
 
-                <button 
-                  onClick={() => setActiveTab('guides')}
-                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'guides' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">
-                    ℹ️
-                  </div>
+                <button onClick={() => setActiveTab('guides')} className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'guides' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                  <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl font-bold">ℹ️</div>
                   <span className="font-bold text-slate-800 text-sm">Guides Pratiques</span>
                 </button>
 
-                <button 
-                  onClick={() => setActiveTab('equipe')}
-                  className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'equipe' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}
-                >
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">
-                    👥
-                  </div>
+                <button onClick={() => setActiveTab('equipe')} className={`p-5 rounded-2xl border transition-all text-center flex flex-col items-center justify-center space-y-3 ${activeTab === 'equipe' ? 'bg-white border-[#A81920] ring-2 ring-red-500/20 shadow-md' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl font-bold">👥</div>
                   <span className="font-bold text-slate-800 text-sm">Mon Équipe</span>
                 </button>
               </div>
 
-              {/* Flux des messages principaux */}
+              {/* Contenu selon l'onglet actif */}
               <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-200/80 space-y-4">
                 <div className="flex justify-between items-center pb-4 border-b border-slate-100">
                   <div className="flex items-center space-x-2">
                     <span className="w-2 h-6 bg-[#A81920] rounded-full"></span>
-                    <h3 className="text-lg font-extrabold text-slate-900">En ce moment (Actualités)</h3>
+                    <h3 className="text-lg font-extrabold text-slate-900">
+                      {activeTab === 'actu' && 'En ce moment (Actualités & Alertes)'}
+                      {activeTab === 'vie' && 'Agenda des animations et cafés partagés'}
+                      {activeTab === 'guides' && 'Guides pratiques & documents utiles (FALC)'}
+                      {activeTab === 'equipe' && 'Votre équipe de proximité Adoma'}
+                    </h3>
                   </div>
-                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{posts.length} message(s)</span>
+                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">{posts.length} élément(s)</span>
                 </div>
 
-                <div className="space-y-4">
-                  {posts.map((post) => (
-                    <div key={post.id} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-slate-100/80 transition space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${post.type === 'urgence' ? 'bg-red-100 text-[#A81920]' : post.type === 'event' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
-                          {post.type}
-                        </span>
-                        <span className="text-xs text-slate-400 font-medium">{post.date}</span>
+                {activeTab === 'actu' && (
+                  <div className="space-y-4">
+                    {posts.map((post) => (
+                      <div key={post.id} className="p-5 rounded-2xl bg-slate-50 border border-slate-200 hover:bg-slate-100 transition space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase ${post.type === 'urgence' ? 'bg-red-100 text-[#A81920]' : post.type === 'event' ? 'bg-emerald-100 text-emerald-800' : 'bg-blue-100 text-blue-800'}`}>
+                            {post.type}
+                          </span>
+                          <span className="text-xs text-slate-400 font-medium">{post.date}</span>
+                        </div>
+                        <h4 className="text-base font-bold text-slate-900">{post.title}</h4>
+                        <p className="text-sm text-slate-600 leading-relaxed">{post.desc}</p>
+                        <div className="pt-3 flex justify-between items-center border-t border-slate-200 text-xs">
+                          <span className="text-slate-500 font-medium">Par : <strong className="text-slate-700">{post.author}</strong></span>
+                          <button onClick={() => speakText(`${post.title}. ${post.desc}`)} className="flex items-center space-x-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 font-bold text-slate-700 hover:text-[#A81920] shadow-sm transition">
+                            <span>🔊</span><span>Écouter (FALC)</span>
+                          </button>
+                        </div>
                       </div>
-                      
-                      <h4 className="text-base font-bold text-slate-900">{post.title}</h4>
-                      <p className="text-sm text-slate-600 leading-relaxed">{post.desc}</p>
-                      
-                      <div className="pt-3 flex justify-between items-center border-t border-slate-200/60 text-xs">
-                        <span className="text-slate-500 font-medium">Émis par : <strong className="text-slate-700">{post.author}</strong></span>
-                        <button 
-                          onClick={() => speakText(`${post.title}. ${post.desc}`)}
-                          className="flex items-center space-x-1.5 bg-white px-3 py-1.5 rounded-xl border border-slate-200 font-bold text-slate-700 hover:text-[#A81920] shadow-sm transition"
-                        >
-                          <span>🔊</span>
-                          <span>Écouter (FALC)</span>
-                        </button>
+                    ))}
+                  </div>
+                )}
+
+                {activeTab === 'vie' && (
+                  <div className="py-8 text-center space-y-3">
+                    <span className="text-4xl">☕</span>
+                    <h4 className="font-bold text-slate-800 text-base">Ateliers et rencontres de la semaine</h4>
+                    <p className="text-sm text-slate-500 max-w-md mx-auto">Chaque mardi après-midi, un espace café est ouvert pour échanger avec l'équipe sociale et les résidents.</p>
+                  </div>
+                )}
+
+                {activeTab === 'guides' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center space-x-3">
+                      <span className="text-2xl">📄</span>
+                      <div>
+                        <h5 className="font-bold text-sm text-slate-800">Règlement intérieur simplifié</h5>
+                        <p className="text-xs text-slate-500">Format FALC accessible à tous</p>
                       </div>
                     </div>
-                  ))}
-                </div>
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center space-x-3">
+                      <span className="text-2xl">🧺</span>
+                      <div>
+                        <h5 className="font-bold text-sm text-slate-800">Notice d'utilisation laverie</h5>
+                        <p className="text-xs text-slate-500">Guide en images</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'equipe' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-red-100 text-[#A81920] rounded-full flex items-center justify-center font-bold">SA</div>
+                      <div>
+                        <h5 className="font-bold text-sm text-slate-800">Salima Afric</h5>
+                        <p className="text-xs text-slate-500">Responsable de résidence</p>
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold">CM</div>
+                      <div>
+                        <h5 className="font-bold text-sm text-slate-800">Christian M.</h5>
+                        <p className="text-xs text-slate-500">Agent de maintenance</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
             </main>
           )}
 
-          {/* VUE ADMIN & KIOSK */}
+          {/* MODAL SIGNALEMENT DE PANNE */}
+          {showModal && (
+            <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 z-50">
+              <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+                <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+                  <h3 className="font-extrabold text-lg text-slate-900">🔧 Signaler une panne ou un incident</h3>
+                  <button onClick={() => setShowModal(false)} className="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+                </div>
+                <form onSubmit={handleIncidentSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Décrivez votre problème (ex: ascenseur, fuite d'eau, éclairage...)</label>
+                    <textarea value={incidentText} onChange={(e) => setIncidentText(e.target.value)} className="w-full border border-slate-300 rounded-xl p-3 text-sm h-32 focus:ring-2 focus:ring-red-500 outline-none" placeholder="Ex: La lumière du couloir du 2ème étage ne fonctionne plus..." required></textarea>
+                  </div>
+                  <div className="flex justify-end space-x-2 pt-2">
+                    <button type="button" onClick={() => setShowModal(false)} className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100">Annuler</button>
+                    <button type="submit" className="bg-[#A81920] text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-red-800 shadow">Envoyer le signalement</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
+
+          {/* VUE ADMIN */}
           {viewMode === 'admin' && (
             <main className="max-w-4xl w-full mx-auto p-6 flex-1">
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 space-y-6">
                 <h2 className="text-xl font-bold text-slate-900">Console d'administration - Publication d'Annonces</h2>
                 <p className="text-sm text-slate-500">Remplissez ce formulaire pour diffuser instantanément une alerte sur l'intranet résident et sur les écrans du hall.</p>
-                <form onSubmit={(e) => { e.preventDefault(); alert('Message publié !'); setViewMode('resident'); }} className="space-y-4">
+                <form onSubmit={(e) => { e.preventDefault(); alert('Message publié avec succès !'); setViewMode('resident'); }} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce</label>
                     <input type="text" className="w-full border border-slate-300 rounded-xl p-3 text-sm" placeholder="Ex: Maintenance du chauffage" required />
@@ -244,6 +290,7 @@
             </main>
           )}
 
+          {/* VUE KIOSK TV */}
           {viewMode === 'kiosk' && (
             <main className="flex-1 bg-slate-950 p-8 text-white flex flex-col justify-between">
               <div className="flex justify-between items-center pb-6 border-b border-slate-800">
