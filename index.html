@@ -3,21 +3,283 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Adoma - Intranet de Résidence</title>
-  <!-- Tailwind CSS CDN -->
+  <title>Adoma - Intranet de Résidence (POC)</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React & Babel CDNs -->
+  <!-- React & Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 </head>
-<body class="bg-slate-100 font-sans">
+<body class="bg-slate-100 font-sans antialiased text-slate-800">
   <div id="root"></div>
 
   <script type="text/babel">
-    // Charge ici le code React du composant fourni au-dessus
+    const { useState } = React;
+    
+    // Logo SVG officiel Adoma / CDC Habitat
+    const AdomaLogo = () => (
+      <svg className="h-8 w-auto" viewBox="0 0 280 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="38" height="38" fill="#E30613"/>
+        <text x="7" y="27" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="22">cdc</text>
+        <text x="48" y="27" fill="#1E293B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="22">habitat</text>
+        <text x="135" y="40" fill="#64748B" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="14">Adoma</text>
+        <line x1="185" y1="5" x2="185" y2="38" stroke="#CBD5E1" strokeWidth="1.5"/>
+        <rect x="195" y="5" width="75" height="33" fill="#E30613"/>
+        <text x="200" y="22" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="9">Caisse</text>
+        <text x="200" y="32" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="9">des Dépôts</text>
+        <text x="200" y="40" fill="white" fontFamily="Arial, sans-serif" fontWeight="bold" fontSize="6">GROUPE</text>
+      </svg>
+    );
+
+    function App() {
+      const [viewMode, setViewMode] = useState('resident'); // 'resident' | 'admin' | 'kiosk'
+      const [activeTab, setActiveTab] = useState('actu');
+      const [posts, setPosts] = useState([
+        { id: 1, type: 'urgence', title: 'Coupure d\'eau temporaire', date: 'Aujourd\'hui, 09:00 - 12:00', desc: 'Intervention sur la colonne d\'eau du bâtiment B. Merci de veiller à bien fermer vos robinets.', author: 'Responsable de résidence' },
+        { id: 2, type: 'event', title: 'Café partagé au rez-de-chaussée', date: 'Mardi prochain à 14h30', desc: 'Venez passer un moment convivial avec l\'équipe et les autres résidents autour d\'un café.', author: 'Agent d\'animation' },
+        { id: 3, type: 'info', title: 'Permanence France Travail', date: 'Jeudi de 10h à 12h', desc: 'Un conseiller est présent au bureau d\'accueil pour vous accompagner dans vos démarches d\'emploi.', author: 'Équipe sociale' }
+      ]);
+
+      const [newTitle, setNewTitle] = useState('');
+      const [newDesc, setNewDesc] = useState('');
+      const [newType, setNewType] = useState('info');
+
+      const handlePublish = (e) => {
+        e.preventDefault();
+        if(!newTitle || !newDesc) return;
+        const item = {
+          id: Date.now(),
+          type: newType,
+          title: newTitle,
+          date: 'À l\'instant',
+          desc: newDesc,
+          author: 'Responsable de résidence'
+        };
+        setPosts([item, ...posts]);
+        setNewTitle('');
+        setNewDesc('');
+        alert('Publication envoyée sur l\'intranet de la résidence !');
+        setActiveTab('actu');
+      };
+
+      const speakText = (text) => {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'fr-FR';
+          window.speechSynthesis.speak(utterance);
+        } else {
+          alert("La lecture vocale n'est pas supportée par votre navigateur.");
+        }
+      };
+
+      return (
+        <div className="min-h-screen bg-slate-100 flex flex-col">
+          {/* Header Barre de contrôle POC */}
+          <header className="bg-slate-900 text-white px-4 py-3 shadow-md flex flex-wrap justify-between items-center gap-4">
+            <div className="flex items-center space-x-3">
+              <span className="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded">POC UX</span>
+              <span className="text-sm font-medium">Intranet Résidence Adoma — Démo Multi-Vues</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <button onClick={() => setViewMode('resident')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'resident' ? 'bg-[#A81920] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                📱 Vue Résident (Mobile)
+              </button>
+              <button onClick={() => setViewMode('admin')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'admin' ? 'bg-[#A81920] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                💻 Console Admin (Responsable)
+              </button>
+              <button onClick={() => setViewMode('kiosk')} className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${viewMode === 'kiosk' ? 'bg-[#A81920] text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}`}>
+                📺 Affichage Hall (TV)
+              </button>
+            </div>
+          </header>
+
+          {/* Corps de l'application selon la vue */}
+          <div className="flex-1 flex justify-center items-start p-2 sm:p-6">
+            
+            {/* VUE 1 : RÉSIDENT (PWA Mobile) */}
+            {viewMode === 'resident' && (
+              <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border-8 border-slate-800 flex flex-col min-h-[750px]">
+                {/* En-tête Résidence */}
+                <div className="bg-white border-b border-slate-200 px-4 py-3 flex justify-between items-center">
+                  <AdomaLogo />
+                  <div className="text-right">
+                    <span className="text-xs font-bold text-slate-500 block">Résidence</span>
+                    <span className="text-sm font-extrabold text-slate-800">Les Oliviers</span>
+                  </div>
+                </div>
+
+                {/* Contenu de l'onglet */}
+                <div className="flex-1 p-4 overflow-y-auto space-y-4">
+                  <div className="bg-red-50 border-l-4 border-[#A81920] p-3 rounded-r-xl">
+                    <div className="flex justify-between items-start">
+                      <p className="text-xs font-bold text-[#A81920]">Bienvenue sur votre espace</p>
+                      <button onClick={() => speakText("Bienvenue sur votre espace de résidence Les Oliviers. Retrouvez ici vos actualités et services.")} className="text-[#A81920] hover:text-red-900 text-xs flex items-center gap-1 font-bold">
+                        🔊 Écouter
+                      </button>
+                    </div>
+                    <p className="text-xs text-slate-600 mt-1">Restez informés de la vie de la résidence et contactez l'équipe en un clic.</p>
+                  </div>
+
+                  {activeTab === 'actu' && (
+                    <div className="space-y-3">
+                      <h2 className="font-bold text-slate-800 text-sm flex items-center gap-2">📢 Actualités & Alertes</h2>
+                      {posts.map(post => (
+                        <div key={post.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 shadow-sm hover:shadow transition">
+                          <div className="flex justify-between items-center mb-1">
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${post.type === 'urgence' ? 'bg-red-100 text-red-700' : post.type === 'event' ? 'bg-amber-100 text-amber-800' : 'bg-blue-100 text-blue-700'}`}>
+                              {post.type.toUpperCase()}
+                            </span>
+                            <span className="text-[11px] text-slate-400">{post.date}</span>
+                          </div>
+                          <h3 className="font-bold text-slate-900 text-sm mt-1">{post.title}</h3>
+                          <p className="text-xs text-slate-600 mt-1 leading-relaxed">{post.desc}</p>
+                          <div className="mt-3 flex justify-between items-center pt-2 border-t border-slate-200">
+                            <span className="text-[10px] text-slate-500">Par {post.author}</span>
+                            <button onClick={() => speakText(`${post.title}. ${post.desc}`)} className="text-slate-600 hover:text-red-600 text-xs flex items-center gap-1 font-semibold bg-white px-2 py-1 rounded border border-slate-200">
+                              🔊 Écouter
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {activeTab === 'services' && (
+                    <div className="space-y-3">
+                      <h2 className="font-bold text-slate-800 text-sm">🛠️ Vie Pratique & Logement</h2>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
+                          <span className="text-2xl block mb-1">🚿</span>
+                          <span className="text-xs font-bold text-slate-700">Signaler une panne</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
+                          <span className="text-2xl block mb-1">🧺</span>
+                          <span className="text-xs font-bold text-slate-700">Laverie</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
+                          <span className="text-2xl block mb-1">📄</span>
+                          <span className="text-xs font-bold text-slate-700">Guide d'accueil</span>
+                        </div>
+                        <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 text-center cursor-pointer hover:bg-slate-100">
+                          <span className="text-2xl block mb-1">🤝</span>
+                          <span className="text-xs font-bold text-slate-700">Permanences</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeTab === 'equipe' && (
+                    <div className="space-y-3">
+                      <h2 className="font-bold text-slate-800 text-sm">👥 Votre Équipe de Proximité</h2>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-red-100 text-[#A81920] rounded-full flex items-center justify-center font-bold">SA</div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">Salima Afric</p>
+                          <p className="text-[11px] text-slate-500">Responsable de résidence</p>
+                        </div>
+                      </div>
+                      <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-bold">CM</div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-800">Christian M.</p>
+                          <p className="text-[11px] text-slate-500">Ouvrier de maintenance</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Navigation Basse Mobile */}
+                <nav className="bg-white border-t border-slate-200 px-4 py-2 flex justify-around">
+                  <button onClick={() => setActiveTab('actu')} className={`flex flex-col items-center text-xs ${activeTab === 'actu' ? 'text-[#A81920] font-bold' : 'text-slate-400'}`}>
+                    <span>📢</span> Actualités
+                  </button>
+                  <button onClick={() => setActiveTab('services')} className={`flex flex-col items-center text-xs ${activeTab === 'services' ? 'text-[#A81920] font-bold' : 'text-slate-400'}`}>
+                    <span>🛠️</span> Services
+                  </button>
+                  <button onClick={() => setActiveTab('equipe')} className={`flex flex-col items-center text-xs ${activeTab === 'equipe' ? 'text-[#A81920] font-bold' : 'text-slate-400'}`}>
+                    <span>👥</span> Équipe
+                  </button>
+                </nav>
+              </div>
+            )}
+
+            {/* VUE 2 : CONSOLE ADMIN (Responsable de résidence) */}
+            {viewMode === 'admin' && (
+              <div className="w-full max-w-3xl bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+                <div className="flex justify-between items-center pb-4 border-b border-slate-200 mb-6">
+                  <div>
+                    <h1 className="text-xl font-bold text-slate-900">Console Responsable de Résidence</h1>
+                    <p className="text-xs text-slate-500">Publiez et informez les résidents de votre site en quelques clics.</p>
+                  </div>
+                  <AdomaLogo />
+                </div>
+
+                <form onSubmit={handlePublish} className="space-y-4 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                  <h2 className="text-sm font-bold text-slate-800 mb-2">Publier une annonce locale</h2>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Type d'annonce</label>
+                    <select value={newType} onChange={(e) => setNewType(e.target.value)} className="w-full text-sm border border-slate-300 rounded-lg p-2 bg-white">
+                      <option value="info">Information générale</option>
+                      <option value="event">Événement / Animation</option>
+                      <option value="urgence">Urgence / Travaux</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Titre de l'annonce</label>
+                    <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} placeholder="Ex: Coupure d'électricité programmée..." className="w-full text-sm border border-slate-300 rounded-lg p-2 bg-white" required />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 mb-1">Description détaillée</label>
+                    <textarea value={newDesc} onChange={(e) => setNewDesc(e.target.value)} placeholder="Détails à destination des résidents..." className="w-full text-sm border border-slate-300 rounded-lg p-2 bg-white h-24" required></textarea>
+                  </div>
+                  <button type="submit" className="w-full bg-[#A81920] hover:bg-red-800 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                    Diffuser sur l'intranet de la résidence
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* VUE 3 : AFFICHAGE DYNAMIQUE (Hall TV) */}
+            {viewMode === 'kiosk' && (
+              <div className="w-full max-w-4xl bg-slate-900 text-white rounded-3xl shadow-2xl p-8 border-4 border-red-600 flex flex-col min-h-[600px]">
+                <div className="flex justify-between items-center pb-6 border-b border-slate-800">
+                  <div className="flex items-center space-x-4">
+                    <span className="bg-red-600 text-white font-bold px-3 py-1 rounded-lg text-sm">HALL D'ACCUEIL</span>
+                    <h1 className="text-2xl font-extrabold tracking-wide">Résidence Les Oliviers — Informations</h1>
+                  </div>
+                  <div className="bg-white px-3 py-1.5 rounded-xl">
+                    <AdomaLogo />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-auto py-6">
+                  {posts.slice(0, 2).map(post => (
+                    <div key={post.id} className="bg-slate-800 border border-slate-700 rounded-2xl p-6 shadow-lg">
+                      <span className="text-xs font-bold px-3 py-1 rounded-full bg-red-600 text-white uppercase">{post.type}</span>
+                      <h2 className="text-xl font-bold mt-3 text-white">{post.title}</h2>
+                      <p className="text-sm text-slate-300 mt-2 leading-relaxed">{post.desc}</p>
+                      <p className="text-xs text-slate-400 mt-4">Publié par {post.author}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="text-center pt-4 border-t border-slate-800 text-xs text-slate-400">
+                  Scannez le QR Code dans le hall pour accéder à votre espace résident sur smartphone.
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
   </script>
 </body>
 </html>
